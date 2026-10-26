@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/sentinel-core", "crates/sentinel-scanner", "apps/sentinel-cli", "apps/sentinel-desktop/src-tauri"]
+members = ["crates/sku-antivirus-rust-core", "crates/sku-antivirus-rust-scanner", "apps/sku-antivirus-rust-cli", "apps/sku-antivirus-rust-desktop/src-tauri"]
 
 [workspace.package]
 edition = "2021"

@@ -1,0 +1,9 @@
+[package]
+name = "sku-antivirus-rust-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+sku-antivirus-rust-scanner = { path = "../../crates/sku-antivirus-rust-scanner" }
+sku-antivirus-rust-core = { path = "../../crates/sku-antivirus-rust-core" }

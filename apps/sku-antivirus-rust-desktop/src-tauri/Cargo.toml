@@ -1,0 +1,18 @@
+[package]
+name = "sku-antivirus-rust-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "sku_antivirus_rust_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+sku-antivirus-rust-scanner = { path = "../../../crates/sku-antivirus-rust-scanner" }
+sku-antivirus-rust-core = { path = "../../../crates/sku-antivirus-rust-core" }

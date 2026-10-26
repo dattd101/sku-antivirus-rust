@@ -1,4 +1,4 @@
-name: SentinelAV Windows Portable
+name: SKU Antivirus Rust Windows Portable
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install frontend packages
-        working-directory: apps/sentinel-desktop
+        working-directory: apps/sku-antivirus-rust-desktop
         run: npm install --no-audit --no-fund
       - name: Verify Rust formatting
         run: cargo fmt --all -- --check
@@ -37,32 +37,32 @@ jobs:
       - name: Rust unit tests
         run: cargo test --workspace
       - name: Build frontend
-        working-directory: apps/sentinel-desktop
+        working-directory: apps/sku-antivirus-rust-desktop
         run: npm run build
       - name: Build CLI for Windows x64
-        run: cargo build --release -p sentinel-cli --target x86_64-pc-windows-msvc
+        run: cargo build --release -p sku-antivirus-rust-cli --target x86_64-pc-windows-msvc
       - name: Build Tauri GUI executable (no installer)
-        working-directory: apps/sentinel-desktop
+        working-directory: apps/sku-antivirus-rust-desktop
         run: npm run tauri -- build --target x86_64-pc-windows-msvc --no-bundle
       - name: Package portable ZIP
         shell: pwsh
         run: |
           $release = 'target/x86_64-pc-windows-msvc/release'
-          $gui = Join-Path $release 'sentinel-desktop.exe'
-          $cli = Join-Path $release 'sentinel-cli.exe'
+          $gui = Join-Path $release 'sku-antivirus-rust-desktop.exe'
+          $cli = Join-Path $release 'sku-antivirus-rust-cli.exe'
           if (!(Test-Path $gui)) { throw "GUI EXE not found: $gui" }
           if (!(Test-Path $cli)) { throw "CLI EXE not found: $cli" }
           New-Item -ItemType Directory -Force -Path 'portable' | Out-Null
-          Copy-Item $gui 'portable/SentinelAV.exe'
-          Copy-Item $cli 'portable/sentinel-cli.exe'
+          Copy-Item $gui 'portable/SKU-Antivirus-Rust.exe'
+          Copy-Item $cli 'portable/sku-antivirus-rust-cli.exe'
           Copy-Item 'README.md' 'portable/README.md'
           Copy-Item 'signatures.txt' 'portable/signatures.txt'
-          Compress-Archive -Path 'portable/*' -DestinationPath 'SentinelAV-Portable-Windows-x64.zip' -Force
+          Compress-Archive -Path 'portable/*' -DestinationPath 'SKU-Antivirus-Rust-Portable-Windows-x64.zip' -Force
       - name: Upload Windows portable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SentinelAV-Portable-Windows-x64
-          path: SentinelAV-Portable-Windows-x64.zip
+          name: SKU-Antivirus-Rust-Portable-Windows-x64
+          path: SKU-Antivirus-Rust-Portable-Windows-x64.zip
           if-no-files-found: error
 
   release:
@@ -74,8 +74,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: SentinelAV-Portable-Windows-x64
+          name: SKU-Antivirus-Rust-Portable-Windows-x64
       - uses: softprops/action-gh-release@v2
         with:
-          files: SentinelAV-Portable-Windows-x64.zip
+          files: SKU-Antivirus-Rust-Portable-Windows-x64.zip
           generate_release_notes: true

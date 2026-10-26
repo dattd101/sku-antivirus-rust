@@ -1,0 +1,10 @@
+[package]
+name = "sku-antivirus-rust-scanner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+sku-antivirus-rust-core = { path = "../sku-antivirus-rust-core" }
+sha2 = "0.10"
+walkdir = "2"

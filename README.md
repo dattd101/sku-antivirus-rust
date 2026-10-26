@@ -1,17 +1,17 @@
-# SentinelAV Portable Windows x64
+# SKU Antivirus Rust Portable Windows x64
 
-**Portable build:** Extract the Actions ZIP and double-click `SentinelAV.exe`. No NSIS setup or installation. Windows WebView2 Runtime is required. The portable app is an on-demand scanner only; it does not install a service, register an antivirus, or provide real-time protection.
+**Portable build:** Extract the Actions ZIP and double-click `SKU-Antivirus-Rust.exe`. No NSIS setup or installation. Windows WebView2 Runtime is required. The portable app is an on-demand scanner only; it does not install a service, register an antivirus, or provide real-time protection.
 
-# SentinelAV Desktop MVP (Rust + Tauri 2 + React)
+# SKU Antivirus Rust Desktop MVP (Rust + Tauri 2 + React)
 
 A **manual SHA-256 signature scanner**, not a full antivirus. No realtime protection, malware signature feed, ransomware defense, quarantine, or kernel driver is included. Do **not** disable Microsoft Defender.
 
 ## Windows GitHub Actions
 
-Push this project to a GitHub repository's `main` branch. Workflow `.github/workflows/windows.yml` runs formatting, Clippy, tests, React build, Windows CLI build, Tauri desktop EXE build, and portable ZIP packaging. Download `SentinelAV-Portable-Windows-x64` under the successful workflow's **Artifacts** section.
+Push this project to a GitHub repository's `main` branch. Workflow `.github/workflows/windows.yml` runs formatting, Clippy, tests, React build, Windows CLI build, Tauri desktop EXE build, and portable ZIP packaging. Download `SKU Antivirus Rust-Portable-Windows-x64` under the successful workflow's **Artifacts** section.
 
-- **SentinelAV.exe**: GUI application (double-click to open)
-- **sentinel-cli.exe**: command-line scanner (requires parameters)
+- **SKU-Antivirus-Rust.exe**: GUI application (double-click to open)
+- **sku-antivirus-rust-cli.exe**: command-line scanner (requires parameters)
 
 The unsigned EXE may trigger Windows SmartScreen. Commercial distribution requires code signing. WebView2 Runtime must be present on the target PC.
 
@@ -22,7 +22,7 @@ Install Rust MSVC toolchain, Visual Studio C++ Build Tools, Node.js 22, WebView2
 ```powershell
 cargo fmt --all
 cargo test --workspace
-cd apps/sentinel-desktop
+cd apps/sku-antivirus-rust-desktop
 npm install
 npm run tauri -- dev
 npm run tauri -- build --target x86_64-pc-windows-msvc --no-bundle
@@ -35,17 +35,17 @@ GUI: enter a Windows folder path and optionally a path to `signatures.txt`; clic
 CLI:
 
 ```powershell
-.\sentinel-cli.exe scan "C:\Users\Public\Downloads" ".\signatures.txt"
+.\sku-antivirus-rust-cli.exe scan "C:\Users\Public\Downloads" ".\signatures.txt"
 ```
 
 `signatures.txt` has one verified SHA-256 per line. CLI exit codes: 0 no matches/no errors; 1 matches; 2 bad usage/input; 3 scan errors.
 
 ## Source layout
 
-- `apps/sentinel-desktop`: React/Vite frontend + Tauri 2 Rust backend
-- `apps/sentinel-cli`: CLI
-- `crates/sentinel-scanner`: streaming SHA-256 scanner
-- `crates/sentinel-core`: verdict types
+- `apps/sku-antivirus-rust-desktop`: React/Vite frontend + Tauri 2 Rust backend
+- `apps/sku-antivirus-rust-cli`: CLI
+- `crates/sku-antivirus-rust-scanner`: streaming SHA-256 scanner
+- `crates/sku-antivirus-rust-core`: verdict types
 - `.github/workflows/windows.yml`: CI and release
 
 ## Security / limitations
