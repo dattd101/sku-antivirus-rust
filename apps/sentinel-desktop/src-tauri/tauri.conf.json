@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "SentinelAV \u2014 Security Dashboard",
+        "title": "SentinelAV — Security Dashboard",
         "width": 1120,
         "height": 780,
         "minWidth": 760,
@@ -25,10 +25,8 @@
     }
   },
   "bundle": {
-    "active": true,
-    "targets": [
-      "nsis"
-    ],
+    "active": false,
+    "targets": [],
     "icon": [
       "icons/icon.png",
       "icons/icon.ico"

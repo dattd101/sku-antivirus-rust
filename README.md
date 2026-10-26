@@ -1,16 +1,19 @@
+# SentinelAV Portable Windows x64
+
+**Portable build:** Extract the Actions ZIP and double-click `SentinelAV.exe`. No NSIS setup or installation. Windows WebView2 Runtime is required. The portable app is an on-demand scanner only; it does not install a service, register an antivirus, or provide real-time protection.
+
 # SentinelAV Desktop MVP (Rust + Tauri 2 + React)
 
 A **manual SHA-256 signature scanner**, not a full antivirus. No realtime protection, malware signature feed, ransomware defense, quarantine, or kernel driver is included. Do **not** disable Microsoft Defender.
 
 ## Windows GitHub Actions
 
-Push this project to a GitHub repository's `main` branch. Workflow `.github/workflows/windows.yml` runs formatting, Clippy, tests, React build, Windows CLI build, Tauri desktop EXE build, and NSIS installer packaging. Download `SentinelAV-Windows-x64-portable` or `SentinelAV-Windows-x64-installer` under the successful workflow's **Artifacts** section.
+Push this project to a GitHub repository's `main` branch. Workflow `.github/workflows/windows.yml` runs formatting, Clippy, tests, React build, Windows CLI build, Tauri desktop EXE build, and portable ZIP packaging. Download `SentinelAV-Portable-Windows-x64` under the successful workflow's **Artifacts** section.
 
 - **SentinelAV.exe**: GUI application (double-click to open)
 - **sentinel-cli.exe**: command-line scanner (requires parameters)
-- **NSIS installer**: installs desktop application (unsigned test build)
 
-The unsigned EXE/installer may trigger Windows SmartScreen. Commercial distribution requires code signing.
+The unsigned EXE may trigger Windows SmartScreen. Commercial distribution requires code signing. WebView2 Runtime must be present on the target PC.
 
 ## Local development (Windows)
 
@@ -22,7 +25,7 @@ cargo test --workspace
 cd apps/sentinel-desktop
 npm install
 npm run tauri -- dev
-npm run tauri -- build --target x86_64-pc-windows-msvc
+npm run tauri -- build --target x86_64-pc-windows-msvc --no-bundle
 ```
 
 ## Usage

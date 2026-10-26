@@ -1,4 +1,5 @@
-name: Windows SentinelAV CI
+name: SentinelAV Windows Portable
+
 on:
   push:
     branches: [main]
@@ -10,71 +11,71 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  windows-portable:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust MSVC
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
           targets: x86_64-pc-windows-msvc
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-node@v4
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install frontend dependencies
+      - name: Install frontend packages
         working-directory: apps/sentinel-desktop
         run: npm install --no-audit --no-fund
-      - name: Rust format
+      - name: Verify Rust formatting
         run: cargo fmt --all -- --check
       - name: Rust Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
-      - name: Rust tests
+      - name: Rust unit tests
         run: cargo test --workspace
-      - name: Frontend typecheck and build
+      - name: Build frontend
         working-directory: apps/sentinel-desktop
         run: npm run build
-      - name: Build CLI
+      - name: Build CLI for Windows x64
         run: cargo build --release -p sentinel-cli --target x86_64-pc-windows-msvc
-      - name: Build Tauri Windows EXE and installer
+      - name: Build Tauri GUI executable (no installer)
         working-directory: apps/sentinel-desktop
-        run: npm run tauri -- build --target x86_64-pc-windows-msvc
-      - name: Package portable executables
+        run: npm run tauri -- build --target x86_64-pc-windows-msvc --no-bundle
+      - name: Package portable ZIP
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item target/x86_64-pc-windows-msvc/release/sentinel-cli.exe dist/
-          Copy-Item target/x86_64-pc-windows-msvc/release/sentinel-desktop.exe dist/SentinelAV.exe
-          Copy-Item README.md dist/
-          Compress-Archive -Path dist/* -DestinationPath SentinelAV-Windows-x64-portable.zip -Force
-      - uses: actions/upload-artifact@v4
+          $release = 'target/x86_64-pc-windows-msvc/release'
+          $gui = Join-Path $release 'sentinel-desktop.exe'
+          $cli = Join-Path $release 'sentinel-cli.exe'
+          if (!(Test-Path $gui)) { throw "GUI EXE not found: $gui" }
+          if (!(Test-Path $cli)) { throw "CLI EXE not found: $cli" }
+          New-Item -ItemType Directory -Force -Path 'portable' | Out-Null
+          Copy-Item $gui 'portable/SentinelAV.exe'
+          Copy-Item $cli 'portable/sentinel-cli.exe'
+          Copy-Item 'README.md' 'portable/README.md'
+          Copy-Item 'signatures.txt' 'portable/signatures.txt'
+          Compress-Archive -Path 'portable/*' -DestinationPath 'SentinelAV-Portable-Windows-x64.zip' -Force
+      - name: Upload Windows portable artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: SentinelAV-Windows-x64-portable
-          path: SentinelAV-Windows-x64-portable.zip
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SentinelAV-Windows-x64-installer
-          path: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          name: SentinelAV-Portable-Windows-x64
+          path: SentinelAV-Portable-Windows-x64.zip
           if-no-files-found: error
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: windows-portable
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: SentinelAV-Windows-x64-portable
-      - uses: actions/download-artifact@v4
-        with:
-          name: SentinelAV-Windows-x64-installer
-          path: installer
+          name: SentinelAV-Portable-Windows-x64
       - uses: softprops/action-gh-release@v2
         with:
-          files: |
-            SentinelAV-Windows-x64-portable.zip
-            installer/*.exe
+          files: SentinelAV-Portable-Windows-x64.zip
           generate_release_notes: true
