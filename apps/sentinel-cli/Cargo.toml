@@ -1,0 +1,9 @@
+[package]
+name = "sentinel-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+sentinel-scanner = { path = "../../crates/sentinel-scanner" }
+sentinel-core = { path = "../../crates/sentinel-core" }
