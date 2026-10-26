@@ -1,28 +1,50 @@
-# SentinelAV (MVP)
+# SentinelAV Desktop MVP (Rust + Tauri 2 + React)
 
-Rust-based Windows antivirus scanner proof of concept. **Not a replacement for Microsoft Defender.** This version only detects files with SHA-256 hashes already listed in a local database; it does not provide real-time protection, behavioral analysis, ransomware prevention, quarantine, or a kernel driver.
+A **manual SHA-256 signature scanner**, not a full antivirus. No realtime protection, malware signature feed, ransomware defense, quarantine, or kernel driver is included. Do **not** disable Microsoft Defender.
+
+## Windows GitHub Actions
+
+Push this project to a GitHub repository's `main` branch. Workflow `.github/workflows/windows.yml` runs formatting, Clippy, tests, React build, Windows CLI build, Tauri desktop EXE build, and NSIS installer packaging. Download `SentinelAV-Windows-x64-portable` or `SentinelAV-Windows-x64-installer` under the successful workflow's **Artifacts** section.
+
+- **SentinelAV.exe**: GUI application (double-click to open)
+- **sentinel-cli.exe**: command-line scanner (requires parameters)
+- **NSIS installer**: installs desktop application (unsigned test build)
+
+The unsigned EXE/installer may trigger Windows SmartScreen. Commercial distribution requires code signing.
+
+## Local development (Windows)
+
+Install Rust MSVC toolchain, Visual Studio C++ Build Tools, Node.js 22, WebView2 runtime, and Windows SDK. From project root:
+
+```powershell
+cargo fmt --all
+cargo test --workspace
+cd apps/sentinel-desktop
+npm install
+npm run tauri -- dev
+npm run tauri -- build --target x86_64-pc-windows-msvc
+```
 
 ## Usage
 
-Create `signatures.txt` containing one known-malicious SHA-256 hash per line (comments starting with `#` allowed).
+GUI: enter a Windows folder path and optionally a path to `signatures.txt`; click **Bắt đầu quét**. No default malware signatures are bundled; the embedded file is a comment-only example. Files not matching a known hash are **unknown**, not verified clean. The UI displays matching hashes and read errors. No files are deleted.
+
+CLI:
 
 ```powershell
-cargo run --release -p sentinel-cli -- scan "C:\\Users\\Public\\Downloads" signatures.txt
+.\sentinel-cli.exe scan "C:\Users\Public\Downloads" ".\signatures.txt"
 ```
 
-Exit codes: 0 = no match and no scan errors; 1 = hash match detected; 2 = invalid input/configuration; 3 = incomplete scan due to errors. No match does **not** imply safety.
+`signatures.txt` has one verified SHA-256 per line. CLI exit codes: 0 no matches/no errors; 1 matches; 2 bad usage/input; 3 scan errors.
 
-## Build
+## Source layout
 
-```powershell
-cargo fmt --all -- --check
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
-cargo build --release -p sentinel-cli --target x86_64-pc-windows-msvc
-```
+- `apps/sentinel-desktop`: React/Vite frontend + Tauri 2 Rust backend
+- `apps/sentinel-cli`: CLI
+- `crates/sentinel-scanner`: streaming SHA-256 scanner
+- `crates/sentinel-core`: verdict types
+- `.github/workflows/windows.yml`: CI and release
 
-GitHub Actions builds on `windows-latest`, uploads a ZIP artifact, and publishes a GitHub Release when pushing a `v*` tag.
+## Security / limitations
 
-## Security notes
-
-This MVP does not delete, quarantine, or execute scanned files. Do not store malware samples in the repository. Before commercial use add signed signature updates, strong filesystem identity handling, secure scan workers, limits, audit trails, and comprehensive tests.
+This is an early-stage demonstration and does not provide on-access prevention, behavior detection, ransomware blocking, or a commercial-grade malware database. For large directories the current synchronous scan has no cancellation or progress streaming, although it runs in a blocking worker so the UI stays responsive. Do not use as the sole endpoint security control.

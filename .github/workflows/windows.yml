@@ -1,4 +1,4 @@
-name: Windows Rust CI
+name: Windows SentinelAV CI
 on:
   push:
     branches: [main]
@@ -19,27 +19,43 @@ jobs:
           components: rustfmt, clippy
           targets: x86_64-pc-windows-msvc
       - uses: Swatinem/rust-cache@v2
-      - name: Resolve dependencies
-        run: cargo generate-lockfile
-      - name: Format
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install frontend dependencies
+        working-directory: apps/sentinel-desktop
+        run: npm install --no-audit --no-fund
+      - name: Rust format
         run: cargo fmt --all -- --check
-      - name: Clippy
+      - name: Rust Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
-      - name: Tests
-        run: cargo test --workspace --locked
-      - name: Release build
-        run: cargo build --release --locked -p sentinel-cli --target x86_64-pc-windows-msvc
-      - name: Package
+      - name: Rust tests
+        run: cargo test --workspace
+      - name: Frontend typecheck and build
+        working-directory: apps/sentinel-desktop
+        run: npm run build
+      - name: Build CLI
+        run: cargo build --release -p sentinel-cli --target x86_64-pc-windows-msvc
+      - name: Build Tauri Windows EXE and installer
+        working-directory: apps/sentinel-desktop
+        run: npm run tauri -- build --target x86_64-pc-windows-msvc
+      - name: Package portable executables
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item target/x86_64-pc-windows-msvc/release/sentinel-cli.exe dist/
+          Copy-Item target/x86_64-pc-windows-msvc/release/sentinel-desktop.exe dist/SentinelAV.exe
           Copy-Item README.md dist/
-          Compress-Archive -Path dist/* -DestinationPath sentinel-av-windows-x64.zip
+          Compress-Archive -Path dist/* -DestinationPath SentinelAV-Windows-x64-portable.zip -Force
       - uses: actions/upload-artifact@v4
         with:
-          name: sentinel-av-windows-x64
-          path: sentinel-av-windows-x64.zip
+          name: SentinelAV-Windows-x64-portable
+          path: SentinelAV-Windows-x64-portable.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SentinelAV-Windows-x64-installer
+          path: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           if-no-files-found: error
 
   release:
@@ -51,8 +67,14 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: sentinel-av-windows-x64
+          name: SentinelAV-Windows-x64-portable
+      - uses: actions/download-artifact@v4
+        with:
+          name: SentinelAV-Windows-x64-installer
+          path: installer
       - uses: softprops/action-gh-release@v2
         with:
-          files: sentinel-av-windows-x64.zip
+          files: |
+            SentinelAV-Windows-x64-portable.zip
+            installer/*.exe
           generate_release_notes: true

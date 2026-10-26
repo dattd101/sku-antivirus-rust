@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/sentinel-core", "crates/sentinel-scanner", "apps/sentinel-cli"]
+members = ["crates/sentinel-core", "crates/sentinel-scanner", "apps/sentinel-cli", "apps/sentinel-desktop/src-tauri"]
 
 [workspace.package]
 edition = "2021"
 license = "MIT"
-version = "0.1.0"
+version = "0.2.0"
