@@ -51,3 +51,15 @@ CLI:
 ## Security / limitations
 
 This is an early-stage demonstration and does not provide on-access prevention, behavior detection, ransomware blocking, or a commercial-grade malware database. For large directories the current synchronous scan has no cancellation or progress streaming, although it runs in a blocking worker so the UI stays responsive. Do not use as the sole endpoint security control.
+
+
+## Kiểm tra định dạng trước khi push
+
+```powershell
+cargo fmt --all
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+```
+
+Phiên bản này sửa các chênh lệch rustfmt trong `src-tauri/src/lib.rs` và `sentinel-scanner/src/lib.rs` sau khi đổi tên crate.

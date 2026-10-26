@@ -1,6 +1,6 @@
+use serde::Serialize;
 use sku_antivirus_rust_core::Verdict;
 use sku_antivirus_rust_scanner::{load_signatures, scan_directory};
-use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 

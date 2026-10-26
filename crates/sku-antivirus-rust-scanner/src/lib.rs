@@ -1,5 +1,5 @@
-use sku_antivirus_rust_core::Verdict;
 use sha2::{Digest, Sha256};
+use sku_antivirus_rust_core::Verdict;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, Read};
@@ -90,7 +90,10 @@ mod tests {
     #[test]
     fn hashes_empty_file() {
         let dir = std::env::temp_dir();
-        let path = dir.join(format!("sku-antivirus-rust-test-{}-empty", std::process::id()));
+        let path = dir.join(format!(
+            "sku-antivirus-rust-test-{}-empty",
+            std::process::id()
+        ));
         std::fs::write(&path, []).unwrap();
         let digest = hash_file(&path).unwrap();
         std::fs::remove_file(&path).unwrap();
